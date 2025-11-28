@@ -1,5 +1,6 @@
 import React, { useCallback, useRef } from 'react'
-import ReactFlow, {
+import {
+  ReactFlow,
   ReactFlowProvider,
   addEdge,
   useNodesState,
@@ -12,8 +13,14 @@ import ReactFlow, {
   Edge,
   useReactFlow,
   MarkerType,
-} from 'reactflow'
-import 'reactflow/dist/style.css'
+  BezierEdge,
+  StraightEdge,
+  StepEdge,
+  SmoothStepEdge,
+  ConnectionLineType,
+  MiniMap,
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
 import html2canvas from 'html2canvas'
 import ExportImageButton from './ExportImageButton'
 import EdgeStyleSelector from './EdgeStyleSelector'
@@ -21,7 +28,6 @@ import RectangleNode from './nodes/RectangleNode'
 import CircleNode from './nodes/CircleNode'
 import EllipseNode from './nodes/EllipseNode'
 import DiamondNode from './nodes/DiamondNode'
-import CustomEdge from './edges/CustomEdge'
 
 interface FlowCanvasProps {
   selectedShape: string
@@ -33,10 +39,14 @@ const initialEdges: Edge[] = []
 
 function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
-  const { project } = useReactFlow()
+  const { screenToFlowPosition } = useReactFlow()
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const [selectedEdge, setSelectedEdge] = React.useState<string | null>(null)
+  const genId = useCallback((prefix: string) => {
+    const uuid = (globalThis as any).crypto?.randomUUID?.()
+    return uuid ? `${prefix}-${uuid}` : `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`
+  }, [])
 
   const nodeTypes = React.useMemo(
     () => ({
@@ -50,11 +60,11 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
 
   const edgeTypes = React.useMemo(
     () => ({
-      default: CustomEdge,
-      straight: CustomEdge,
-      step: CustomEdge,
-      smoothstep: CustomEdge,
-      dashed: CustomEdge,
+      default: BezierEdge,
+      straight: StraightEdge,
+      step: StepEdge,
+      smoothstep: BezierEdge,
+      dashed: BezierEdge,
     }),
     []
   )
@@ -63,9 +73,13 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     (params: Connection) => {
       const newEdge: Edge = {
         ...params,
-        id: `edge-${Date.now()}`,
+        id: genId('edge'),
         type: selectedEdgeStyle,
-        style: { strokeWidth: 2, stroke: '#6b7280' },
+        style: {
+          strokeWidth: 2,
+          stroke: '#6b7280',
+          strokeDasharray: selectedEdgeStyle === 'dashed' ? '8,4' : undefined,
+        },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 8,
@@ -76,7 +90,7 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
       }
       setEdges((eds) => addEdge(newEdge, eds))
     },
-    [setEdges, selectedEdgeStyle]
+    [setEdges, selectedEdgeStyle, genId]
   )
 
   const onLabelChange = useCallback(
@@ -133,6 +147,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
               ? {
                   ...edge,
                   type: newStyle === 'dashed' ? 'dashed' : newStyle,
+                  style: {
+                    ...(edge.style || {}),
+                    strokeDasharray: newStyle === 'dashed' ? '8,4' : undefined,
+                  },
                   data: { ...edge.data, style: newStyle },
                 }
               : edge
@@ -143,7 +161,7 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [selectedEdge, setEdges]
   )
 
-  const onEdgeUpdate = useCallback(
+  const onReconnect = useCallback(
     (oldEdge: Edge, newConnection: Connection) => {
       setEdges((els) =>
         els.map((el) => {
@@ -179,22 +197,27 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
 
       if (!reactFlowWrapper.current) return
 
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
-      const position = project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
       })
 
+      const shapeType =
+        event.dataTransfer.getData('application/reactflow') ||
+        event.dataTransfer.getData('shapeType') ||
+        selectedShape
+      const nodeId = genId(shapeType)
+
       const newNode: Node = {
-        id: `${selectedShape}-${Date.now()}`,
-        type: selectedShape,
+        id: nodeId,
+        type: shapeType,
         position,
-        data: { label: '', onLabelChange, onScaleChange, scale: 1 },
+        data: { id: nodeId, label: '', onLabelChange, onScaleChange, scale: 1 },
       }
 
       setNodes((nds) => nds.concat(newNode))
     },
-    [project, selectedShape, onLabelChange, onScaleChange, setNodes]
+    [screenToFlowPosition, selectedShape, onLabelChange, onScaleChange, setNodes, genId]
   )
 
   const exportImage = async () => {
@@ -212,42 +235,74 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
       <ExportImageButton onClick={exportImage} />
       {selectedEdge && <EdgeStyleSelector onSelect={updateSelectedEdgeStyle} />}
 
-      <div ref={reactFlowWrapper} className="h-full w-full">
+      <div ref={reactFlowWrapper} className="h-full w-full" onDrop={onDrop} onDragOver={onDragOver}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
           onNodeClick={onNodeClick}
           onEdgeClick={onEdgeClick}
           onEdgeMouseEnter={onEdgeMouseEnter}
           onEdgeMouseLeave={onEdgeMouseLeave}
-          onEdgeUpdate={onEdgeUpdate}
+          onReconnect={onReconnect}
           onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           connectionMode={ConnectionMode.Loose}
+          minZoom={0.2}
+          maxZoom={5}
+          zoomOnScroll={true}
+          zoomOnPinch={true}
+          zoomOnDoubleClick={true}
+          panOnDrag={true}
+          panOnScroll={false}
+          preventScrolling={true}
+          onInit={(inst) => inst.fitView({ padding: 0.1, minZoom: 0.2, maxZoom: 5 })}
+          connectionLineType={
+            selectedEdgeStyle === 'straight'
+              ? ConnectionLineType.Straight
+              : selectedEdgeStyle === 'step'
+              ? ConnectionLineType.Step
+              : selectedEdgeStyle === 'smoothstep'
+              ? ConnectionLineType.Bezier
+              : ConnectionLineType.Bezier
+          }
           fitView
           snapToGrid={true}
           snapGrid={[20, 20]}
-          defaultEdgeOptions={{
-            type: selectedEdgeStyle,
-            style: { strokeWidth: 2, stroke: '#6b7280' },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              width: 8,
-              height: 8,
-              color: '#6b7280',
-            },
-          }}
+        defaultEdgeOptions={{
+          type: selectedEdgeStyle,
+          style: {
+            strokeWidth: 2,
+            stroke: '#6b7280',
+            strokeDasharray: selectedEdgeStyle === 'dashed' ? '8,4' : undefined,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 8,
+            height: 8,
+            color: '#6b7280',
+          },
+        }}
           proOptions={{ hideAttribution: true }}
         >
-          <Controls />
-          <Background />
+          <Controls position="bottom-left" />
+          <Background bgColor="#ffffff" color="#ffffff" />
         </ReactFlow>
+        <MiniMap
+          position="bottom-right"
+          nodeStrokeWidth={2}
+          nodeStrokeColor="#64748b"
+          nodeColor="#cbd5e1"
+          bgColor="#ffffff"
+          maskColor="rgba(0,0,0,0.08)"
+          zoomable
+          pannable
+          zoomStep={0.1}
+          style={{ width: 200, height: 140, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+        />
       </div>
     </div>
   )

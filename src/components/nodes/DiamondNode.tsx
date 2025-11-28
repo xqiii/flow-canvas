@@ -1,5 +1,5 @@
 import React from 'react'
-import { Handle, Position } from 'reactflow'
+import { Handle, Position } from '@xyflow/react'
 import useNodeResize from '../../hooks/useNodeResize'
 
 function DiamondNode({ data }: { data: any }) {
@@ -45,66 +45,66 @@ function DiamondNode({ data }: { data: any }) {
         id="top"
         type="source"
         position={Position.Top}
-        className={`w-3 h-3 transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
         onMouseLeave={() => setIsConnecting(false)}
-        style={{ top: -6 }}
+        style={{ top: -5 }}
       />
       <Handle
         id="bottom"
         type="source"
         position={Position.Bottom}
-        className={`w-3 h-3 transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
         onMouseLeave={() => setIsConnecting(false)}
-        style={{ bottom: -6 }}
+        style={{ bottom: -5 }}
       />
       <Handle
         id="left"
         type="source"
         position={Position.Left}
-        className={`w-3 h-3 transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
         onMouseLeave={() => setIsConnecting(false)}
-        style={{ left: -6 }}
+        style={{ left: -5 }}
       />
       <Handle
         id="right"
         type="source"
         position={Position.Right}
-        className={`w-3 h-3 transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
         onMouseLeave={() => setIsConnecting(false)}
-        style={{ right: -6 }}
+        style={{ right: -5 }}
       />
 
       <div
-        className="absolute w-6 h-6 bg-blue-500 rounded-full cursor-nw-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-110"
+        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-nw-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'nw')}
-        style={{ top: -12, left: -12 }}
+        style={{ top: -8, left: -8 }}
       />
       <div
-        className="absolute w-6 h-6 bg-blue-500 rounded-full cursor-ne-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-110"
+        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-ne-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'ne')}
-        style={{ top: -12, right: -12 }}
+        style={{ top: -8, right: -8 }}
       />
       <div
-        className="absolute w-6 h-6 bg-blue-500 rounded-full cursor-sw-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-110"
+        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-sw-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'sw')}
-        style={{ bottom: -12, left: -12 }}
+        style={{ bottom: -8, left: -8 }}
       />
       <div
-        className="absolute w-6 h-6 bg-blue-500 rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-110"
+        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'se')}
-        style={{ bottom: -12, right: -12 }}
+        style={{ bottom: -8, right: -8 }}
       />
 
       {isEditing ? (

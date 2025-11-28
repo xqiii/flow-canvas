@@ -33,6 +33,9 @@ function App() {
 
   const handleDragStart = (e: React.DragEvent, shapeType: string) => {
     e.dataTransfer.setData('shapeType', shapeType);
+    e.dataTransfer.setData('application/reactflow', shapeType);
+    e.dataTransfer.setData('text/plain', shapeType);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   return (
