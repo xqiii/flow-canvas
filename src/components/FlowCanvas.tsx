@@ -76,15 +76,15 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
         id: genId('edge'),
         type: selectedEdgeStyle,
         style: {
-          strokeWidth: 2,
-          stroke: '#6b7280',
+          strokeWidth: 1,
+          stroke: 'hsl(var(--muted-foreground))',
           strokeDasharray: selectedEdgeStyle === 'dashed' ? '8,4' : undefined,
         },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          width: 8,
-          height: 8,
-          color: '#6b7280',
+          width: 6,
+          height: 6,
+          color: 'hsl(var(--muted-foreground))',
         },
         data: { style: selectedEdgeStyle },
       }
@@ -275,33 +275,33 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
         defaultEdgeOptions={{
           type: selectedEdgeStyle,
           style: {
-            strokeWidth: 2,
-            stroke: '#6b7280',
+            strokeWidth: 1,
+            stroke: 'hsl(var(--muted-foreground))',
             strokeDasharray: selectedEdgeStyle === 'dashed' ? '8,4' : undefined,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            width: 8,
-            height: 8,
-            color: '#6b7280',
+            width: 6,
+            height: 6,
+            color: 'hsl(var(--muted-foreground))',
           },
         }}
           proOptions={{ hideAttribution: true }}
         >
           <Controls position="bottom-left" />
-          <Background bgColor="#ffffff" color="#ffffff" />
+          <Background bgColor="transparent" color="transparent" />
         </ReactFlow>
         <MiniMap
           position="bottom-right"
-          nodeStrokeWidth={2}
-          nodeStrokeColor="#64748b"
-          nodeColor="#cbd5e1"
-          bgColor="#ffffff"
+          nodeStrokeWidth={1}
+          nodeStrokeColor="rgba(0,0,0,0.7)"
+          nodeColor="rgba(0,0,0,0.04)"
+          bgColor="transparent"
           maskColor="rgba(0,0,0,0.08)"
           zoomable
           pannable
           zoomStep={0.1}
-          style={{ width: 200, height: 140, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+          style={{ width: 200, height: 140, borderRadius: 8, boxShadow: '0 1px 0 rgba(0,0,0,0.06)', border: '1px solid hsl(var(--border))', background: 'hsl(var(--card))' }}
         />
       </div>
     </div>

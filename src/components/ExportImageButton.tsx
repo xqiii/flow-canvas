@@ -5,7 +5,7 @@ function ExportImageButton({ onClick }: { onClick: () => void }) {
     <div className="absolute top-6 right-6 z-10">
       <button
         onClick={onClick}
-        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 font-medium backdrop-blur-sm"
+        className="bg-background text-foreground border border-border px-4 py-2 rounded-md shadow-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       >
         📸 导出图片
       </button>

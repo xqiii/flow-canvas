@@ -11,6 +11,47 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* 黑白主题变量与基础样式（shadcn 风格）*/
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+    --border: 0 0% 85%;
+    --input: 0 0% 92%;
+    --ring: 0 0% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --accent: 0 0% 93%;
+    --destructive: 0 0% 20%;
+    --radius: 10px;
+  }
+
+  .dark {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
+    --border: 0 0% 25%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+    --accent: 0 0% 18%;
+    --destructive: 0 0% 80%;
+    --radius: 10px;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
 /* React Flow节点样式优化 */
 .react-flow__node {
   transition: all 0.2s ease;
@@ -36,49 +77,46 @@ body {
 }
 
 .react-flow__handle {
-  width: 6px;
-  height: 6px;
-  background: #3b82f6;
-  border: 2px solid white;
+  width: 4px;
+  height: 4px;
+  background: hsl(var(--foreground));
+  border: 1px solid hsl(var(--background));
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: none;
 }
 
 .react-flow__handle:hover {
-  background: #1d4ed8;
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .react-flow__edge-path {
-  stroke: #6b7280;
-  stroke-width: 2;
-  stroke-linecap: round;
+  stroke: hsl(var(--muted-foreground));
+  stroke-width: 1;
+  stroke-linecap: square;
 }
 
 .react-flow__controls {
-  background: white/80;
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  padding: 8px;
+  background: hsl(var(--card));
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  padding: 6px;
 }
 
 .react-flow__controls-button {
-  background: transparent;
-  border: none;
-  border-radius: 12px;
-  width: 36px;
-  height: 36px;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 4px);
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .react-flow__controls-button:hover {
-  background: rgba(59, 130, 246, 0.1);
-  transform: scale(1.1);
+  background: hsl(var(--muted));
 }
 
 /* 自定义滚动条 */
@@ -91,7 +129,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.1);
+  background: hsl(var(--muted-foreground));
   border-radius: 3px;
 }
 
@@ -103,7 +141,6 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   line-height: 1.5;
   font-weight: 400;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

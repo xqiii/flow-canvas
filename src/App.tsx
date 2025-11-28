@@ -39,20 +39,20 @@ function App() {
   };
 
   return (
-    <div className="h-screen bg-gray-50 flex">
+    <div className="h-screen bg-background flex">
       {/* 左侧工具栏 */}
-      <div className="w-20 bg-white/80 backdrop-blur-xl border-r border-gray-100 flex flex-col items-center py-6 space-y-3">
-        <div className="text-[20px] text-black font-medium mb-4 tracking-wide">图形</div>
+      <div className="w-20 bg-background border-r border-border flex flex-col items-center py-6 space-y-3">
+        <div className="text-[20px] text-foreground font-medium mb-4 tracking-wide">图形</div>
         {shapes.map((shape) => (
           <div
             key={shape.type}
             draggable
             onDragStart={(e) => handleDragStart(e, shape.type)}
             onClick={() => setSelectedShape(shape.type)}
-            className={`w-14 h-14 flex items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 ${
+            className={`w-14 h-14 flex items-center justify-center rounded-md cursor-pointer ${
               selectedShape === shape.type
-                ? 'bg-blue-500/10 border-2 border-blue-500 text-blue-600 shadow-lg shadow-blue-500/20'
-                : 'bg-gray-100/50 border-2 border-transparent text-gray-600 hover:bg-gray-200/60 hover:scale-105'
+                ? 'bg-background border border-foreground text-foreground'
+                : 'bg-background border border-border text-mutedForeground hover:bg-muted'
             }`}
             title={shape.name}
           >
@@ -60,15 +60,15 @@ function App() {
           </div>
         ))}
         
-        <div className="text-[20px] text-black font-medium mt-6 mb-4 tracking-wide">连线</div>
+        <div className="text-[20px] text-foreground font-medium mt-6 mb-4 tracking-wide">连线</div>
         {edgeStyles.map((style) => (
           <div
             key={style.type}
             onClick={() => setSelectedEdgeStyle(style.type)}
-            className={`w-14 h-8 flex items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 text-xs ${
+            className={`w-14 h-8 flex items-center justify-center rounded-md cursor-pointer text-xs ${
               selectedEdgeStyle === style.type
-                ? 'bg-blue-500/10 border-2 border-blue-500 text-blue-600 shadow-lg shadow-blue-500/20'
-                : 'bg-gray-100/50 border-2 border-transparent text-gray-600 hover:bg-gray-200/60 hover:scale-105'
+                ? 'bg-background border border-foreground text-foreground'
+                : 'bg-background border border-border text-mutedForeground hover:bg-muted'
             }`}
             title={style.name}
           >
@@ -82,32 +82,32 @@ function App() {
         <FlowCanvasWithProvider selectedShape={selectedShape} selectedEdgeStyle={selectedEdgeStyle} />
       </div>
 
-      {/* 使用说明 - 玻璃态效果 */}
-      <div className="absolute bottom-6 left-24 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-4 text-xs text-gray-600 border border-white/20">
-        <div className="font-semibold mb-2 text-gray-800">操作说明</div>
+      {/* 使用说明 */}
+      <div className="absolute bottom-6 left-24 bg-card border border-border rounded-md shadow-sm p-4 text-xs text-mutedForeground">
+        <div className="font-semibold mb-2 text-foreground">操作说明</div>
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
             <span>点击图标或拖拽到画布</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
             <span>拖拽图形边缘进行连线</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
             <span>双击图形编辑文字</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
             <span>按住Cmd/Ctrl键点击图形删除</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
             <span>拖拽图形四角进行缩放</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-pink-500 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
             <span>按住Cmd/Ctrl键点击连线删除</span>
           </div>
         </div>

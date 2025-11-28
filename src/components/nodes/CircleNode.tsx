@@ -31,11 +31,14 @@ function CircleNode({ data }: { data: any }) {
 
   const { handleMouseDown } = useNodeResize(data.id, scale, handleScaleChange)
 
-  const size = 80 * scale
+  const size = 64 * scale
+  const fontSize = 13 * scale
+  const handleSize = Math.max(6, Math.min(10, 10 * scale))
+  const handleOffset = -(handleSize / 2)
 
   return (
     <div
-      className="bg-white border-2 border-gray-300 rounded-full p-4 flex items-center justify-center cursor-pointer relative group"
+      className="bg-background border border-border rounded-full p-4 flex items-center justify-center cursor-pointer relative group"
       onDoubleClick={handleDoubleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -45,7 +48,7 @@ function CircleNode({ data }: { data: any }) {
         id="top"
         type="source"
         position={Position.Top}
-        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-foreground border border-background rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
@@ -56,7 +59,7 @@ function CircleNode({ data }: { data: any }) {
         id="bottom"
         type="source"
         position={Position.Bottom}
-        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-foreground border border-background rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
@@ -67,7 +70,7 @@ function CircleNode({ data }: { data: any }) {
         id="left"
         type="source"
         position={Position.Left}
-        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-foreground border border-background rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
@@ -78,7 +81,7 @@ function CircleNode({ data }: { data: any }) {
         id="right"
         type="source"
         position={Position.Right}
-        className={`transition-opacity duration-200 bg-blue-500 border-2 border-white rounded-full ${
+        className={`transition-opacity duration-200 bg-foreground border border-background rounded-full ${
           isHovered || isConnecting ? 'opacity-100' : 'opacity-0'
         }`}
         onMouseEnter={() => setIsConnecting(true)}
@@ -87,24 +90,24 @@ function CircleNode({ data }: { data: any }) {
       />
 
       <div
-        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-nw-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
+        className="absolute bg-foreground rounded-full cursor-nw-resize opacity-0 group-hover:opacity-100 transition-opacity duration-200 border border-background z-20 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'nw')}
-        style={{ top: -8, left: -8 }}
+        style={{ width: handleSize, height: handleSize, top: handleOffset, left: handleOffset }}
       />
       <div
-        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-ne-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
+        className="absolute bg-foreground rounded-full cursor-ne-resize opacity-0 group-hover:opacity-100 transition-opacity duration-200 border border-background z-20 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'ne')}
-        style={{ top: -8, right: -8 }}
+        style={{ width: handleSize, height: handleSize, top: handleOffset, right: handleOffset }}
       />
       <div
-        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-sw-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
+        className="absolute bg-foreground rounded-full cursor-sw-resize opacity-0 group-hover:opacity-100 transition-opacity duration-200 border border-background z-20 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'sw')}
-        style={{ bottom: -8, left: -8 }}
+        style={{ width: handleSize, height: handleSize, bottom: handleOffset, left: handleOffset }}
       />
       <div
-        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-all duration-200 border-2 border-white shadow-lg z-20 hover:bg-blue-600 hover:scale-105 nodrag nopan nowheel"
+        className="absolute bg-foreground rounded-full cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity duration-200 border border-background z-20 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'se')}
-        style={{ bottom: -8, right: -8 }}
+        style={{ width: handleSize, height: handleSize, bottom: handleOffset, right: handleOffset }}
       />
 
       {isEditing ? (
@@ -117,9 +120,12 @@ function CircleNode({ data }: { data: any }) {
           className="bg-transparent border-none outline-none text-center w-full"
           placeholder="输入文字..."
           autoFocus
+          style={{ fontSize: `${fontSize}px` }}
         />
       ) : (
-        <span className="text-center w-full">{label || '双击编辑'}</span>
+        <span className="text-center w-full" style={{ fontSize: `${fontSize}px` }}>
+          {label || '双击编辑'}
+        </span>
       )}
     </div>
   )
