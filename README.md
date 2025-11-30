@@ -1,97 +1,81 @@
-# Flow Map
+<p align="center">
+  <img src="public/favicon.svg" width="80" height="80" alt="Flow Map Logo">
+</p>
 
-一个基于 React、TypeScript 和 Vite 的轻量级流程图/关系图编辑器。支持拖拽添加节点、连接边、切换多种连线样式，并可一键导出为图片。
+<h1 align="center">Flow Map</h1>
 
-## 项目简介
-- 可视化地创建矩形、圆形、椭圆、菱形等节点
-- 通过拖拽连接器创建边，并支持直线、阶梯、平滑、虚线等样式
-- 支持按住 `Cmd/Ctrl` 点击删除节点或边
-- 支持在画布上对节点编辑标签与缩放
-- 一键导出当前画布为 PNG 图片
+<p align="center">
+  <strong>轻量级流程图 / 组件关系图编辑器</strong>
+</p>
 
-## 技术栈
-- `React` + `TypeScript` + `Vite`
-- `reactflow` 用于图编辑基础能力
-- `html2canvas` 用于导出图片
+<p align="center">
+  基于 React + TypeScript + Vite 构建，支持拖拽创建节点、自由连线、多种样式切换，一键导出图片。
+</p>
 
-## 快速开始
-- 安装依赖：`npm i`
-- 开发启动：`npm run dev`
-- 预览（适配本环境的本地预览服务）：`npm run preview`
+---
 
-## 使用指南
-- 左侧选择节点形状后，拖拽到画布即可创建节点
-- 在节点上拖拽连接器到另一个节点即可创建边
-- 点击边后可在右上角选择不同连线样式
-- `Cmd/Ctrl + 点击` 节点或边可快速删除
-- 点击右上角导出按钮可生成当前画布的 PNG 图片
+## ✨ 功能特性
 
-## 构建
-- 生产构建：`npm run build`
-- 构建产物位于 `dist`
+- 🎨 **多种节点类型** — 矩形、圆形、椭圆、菱形，满足不同场景需求
+- 🔗 **灵活连线** — 直线、阶梯、平滑曲线、虚线等多种边样式
+- 📐 **任意缩放** — 支持独立调整节点宽高，实时显示尺寸
+- ✏️ **双击编辑** — 节点内支持多行文本，自动换行
+- 🗑️ **快捷删除** — `Cmd/Ctrl + 点击` 快速删除节点或连线
+- 📷 **一键导出** — 导出当前画布为 PNG 图片
+- 🌙 **深色模式** — 自动适配系统主题
 
-## 目录结构
-- 关键文件：
-  - 画布组件：`src/components/FlowCanvas.tsx`
-  - 节点组件：`src/components/nodes/*`
-  - 边组件：`src/components/edges/CustomEdge.tsx`
-  - 导出按钮：`src/components/ExportImageButton.tsx`
+## 🚀 快速开始
 
-## 许可协议
-本项目基于 MIT 开源许可证发布，详情见 `LICENSE` 文件。
+```bash
+# 安装依赖
+npm install
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 启动开发服务
+npm run dev
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# 构建生产版本
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📖 使用指南
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| 操作 | 说明 |
+|------|------|
+| 拖拽节点 | 从左侧选择形状，拖入画布创建节点 |
+| 创建连线 | 从节点锚点拖拽到另一节点 |
+| 编辑文字 | 双击节点进入编辑模式 |
+| 调整大小 | 悬停节点，拖拽四角调整尺寸 |
+| 切换线型 | 点击连线后在右上角选择样式 |
+| 删除元素 | `Cmd/Ctrl + 点击` 节点或连线 |
+| 导出图片 | 点击右上角导出按钮 |
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 🛠️ 技术栈
+
+- **框架**: React 18 + TypeScript
+- **构建**: Vite
+- **图编辑**: @xyflow/react (React Flow)
+- **样式**: Tailwind CSS
+- **导出**: html2canvas
+
+## 📁 项目结构
+
 ```
+src/
+├── components/
+│   ├── FlowCanvas.tsx      # 主画布组件
+│   ├── nodes/              # 节点组件
+│   │   ├── RectangleNode.tsx
+│   │   ├── CircleNode.tsx
+│   │   ├── EllipseNode.tsx
+│   │   └── DiamondNode.tsx
+│   ├── EdgeStyleSelector.tsx
+│   └── ExportImageButton.tsx
+├── hooks/
+│   └── useNodeResize.ts    # 节点缩放逻辑
+└── pages/
+    └── Home.tsx
+```
+
+## 📄 开源协议
+
+本项目基于 [MIT](LICENSE) 协议开源。
