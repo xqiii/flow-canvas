@@ -1,13 +1,18 @@
 import React from 'react'
 
+interface Size {
+  width: number
+  height: number
+}
+
 function useNodeResize(
   nodeId: string,
-  initialScale: number,
-  onScaleChange: (id: string, scale: number) => void
+  initialSize: Size,
+  onSizeChange: (id: string, size: Size) => void
 ) {
   const [isResizing, setIsResizing] = React.useState(false)
   const [startPos, setStartPos] = React.useState({ x: 0, y: 0 })
-  const [startScale, setStartScale] = React.useState(initialScale)
+  const [startSize, setStartSize] = React.useState(initialSize)
   const cornerRef = React.useRef<string | null>(null)
 
   const handleMouseDown = (e: React.MouseEvent, corner: string) => {
@@ -23,10 +28,14 @@ function useNodeResize(
 
     setIsResizing(true)
     setStartPos({ x: e.clientX, y: e.clientY })
-    setStartScale(initialScale)
+    setStartSize(initialSize)
 
     const c = corner
-    const cursor = c === 'nw' || c === 'se' ? 'nwse-resize' : 'nesw-resize'
+    let cursor = 'nwse-resize'
+    if (c === 'nw' || c === 'se') cursor = 'nwse-resize'
+    else if (c === 'ne' || c === 'sw') cursor = 'nesw-resize'
+    else if (c === 'n' || c === 's') cursor = 'ns-resize'
+    else if (c === 'e' || c === 'w') cursor = 'ew-resize'
     document.body.style.cursor = cursor
   }
 
@@ -38,26 +47,42 @@ function useNodeResize(
       const deltaY = e.clientY - startPos.y
 
       const c = cornerRef.current
-      let vx = 1
-      let vy = 1
+      let newWidth = startSize.width
+      let newHeight = startSize.height
+
+      // 根据拖拽的角落/边来调整宽高
       if (c === 'nw') {
-        vx = -1
-        vy = -1
+        newWidth = startSize.width - deltaX
+        newHeight = startSize.height - deltaY
       } else if (c === 'ne') {
-        vx = 1
-        vy = -1
+        newWidth = startSize.width + deltaX
+        newHeight = startSize.height - deltaY
       } else if (c === 'sw') {
-        vx = -1
-        vy = 1
+        newWidth = startSize.width - deltaX
+        newHeight = startSize.height + deltaY
+      } else if (c === 'se') {
+        newWidth = startSize.width + deltaX
+        newHeight = startSize.height + deltaY
+      } else if (c === 'n') {
+        newHeight = startSize.height - deltaY
+      } else if (c === 's') {
+        newHeight = startSize.height + deltaY
+      } else if (c === 'w') {
+        newWidth = startSize.width - deltaX
+      } else if (c === 'e') {
+        newWidth = startSize.width + deltaX
       }
 
-      const delta = (deltaX * vx + deltaY * vy) / 200
-      const unclamped = startScale + delta
-      const clamped = Math.max(0.2, Math.min(3, unclamped))
-      const newScale = Math.round(clamped * 100) / 100
-      onScaleChange(nodeId, newScale)
+      // 限制最小和最大尺寸
+      newWidth = Math.max(20, Math.min(300, newWidth))
+      newHeight = Math.max(16, Math.min(200, newHeight))
+
+      onSizeChange(nodeId, { 
+        width: Math.round(newWidth), 
+        height: Math.round(newHeight) 
+      })
     },
-    [isResizing, startPos, startScale, nodeId, onScaleChange]
+    [isResizing, startPos, startSize, nodeId, onSizeChange]
   )
 
   const handleMouseUp = React.useCallback(() => {

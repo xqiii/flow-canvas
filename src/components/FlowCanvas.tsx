@@ -76,14 +76,16 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
         id: genId('edge'),
         type: selectedEdgeStyle,
         style: {
-          strokeWidth: 1,
+          strokeWidth: 0.75,
           stroke: 'hsl(var(--muted-foreground))',
-          strokeDasharray: selectedEdgeStyle === 'dashed' ? '8,4' : undefined,
+          strokeDasharray: selectedEdgeStyle === 'dashed' ? '5,3' : undefined,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
         },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          width: 6,
-          height: 6,
+          width: 5,
+          height: 5,
           color: 'hsl(var(--muted-foreground))',
         },
         data: { style: selectedEdgeStyle },
@@ -104,11 +106,11 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [setNodes]
   )
 
-  const onScaleChange = useCallback(
-    (nodeId: string, scale: number) => {
+  const onSizeChange = useCallback(
+    (nodeId: string, size: { width: number; height: number }) => {
       setNodes((nds) =>
         nds.map((node) =>
-          node.id === nodeId ? { ...node, data: { ...node.data, scale } } : node
+          node.id === nodeId ? { ...node, data: { ...node.data, width: size.width, height: size.height } } : node
         )
       )
     },
@@ -149,7 +151,7 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
                   type: newStyle === 'dashed' ? 'dashed' : newStyle,
                   style: {
                     ...(edge.style || {}),
-                    strokeDasharray: newStyle === 'dashed' ? '8,4' : undefined,
+                    strokeDasharray: newStyle === 'dashed' ? '5,3' : undefined,
                   },
                   data: { ...edge.data, style: newStyle },
                 }
@@ -212,12 +214,12 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
         id: nodeId,
         type: shapeType,
         position,
-        data: { id: nodeId, label: '', onLabelChange, onScaleChange, scale: 1 },
+        data: { id: nodeId, label: '', onLabelChange, onSizeChange },
       }
 
       setNodes((nds) => nds.concat(newNode))
     },
-    [screenToFlowPosition, selectedShape, onLabelChange, onScaleChange, setNodes, genId]
+    [screenToFlowPosition, selectedShape, onLabelChange, onSizeChange, setNodes, genId]
   )
 
   const exportImage = async () => {
@@ -275,14 +277,16 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
         defaultEdgeOptions={{
           type: selectedEdgeStyle,
           style: {
-            strokeWidth: 1,
+            strokeWidth: 0.75,
             stroke: 'hsl(var(--muted-foreground))',
-            strokeDasharray: selectedEdgeStyle === 'dashed' ? '8,4' : undefined,
+            strokeDasharray: selectedEdgeStyle === 'dashed' ? '5,3' : undefined,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            width: 6,
-            height: 6,
+            width: 5,
+            height: 5,
             color: 'hsl(var(--muted-foreground))',
           },
         }}
