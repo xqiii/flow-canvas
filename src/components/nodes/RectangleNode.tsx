@@ -1,39 +1,56 @@
+/**
+ * RectangleNode - 矩形节点组件
+ * 
+ * 功能：
+ * - 可拖拽调整大小
+ * - 双击编辑文字
+ * - 四边连接锚点
+ * - 显示尺寸提示
+ */
+
 import React from 'react'
 import { Handle, Position } from '@xyflow/react'
 import useNodeResize from '../../hooks/useNodeResize'
 
+// 默认尺寸
 const DEFAULT_WIDTH = 44
 const DEFAULT_HEIGHT = 28
 
 function RectangleNode({ data }: { data: any }) {
-  const [isEditing, setIsEditing] = React.useState(false)
-  const [label, setLabel] = React.useState(data.label || '')
+  // ===== 状态 =====
+  const [isEditing, setIsEditing] = React.useState(false)      // 是否处于编辑模式
+  const [label, setLabel] = React.useState(data.label || '')   // 节点文字
   const [size, setSize] = React.useState({ 
     width: data.width || DEFAULT_WIDTH, 
     height: data.height || DEFAULT_HEIGHT 
   })
-  const [isHovered, setIsHovered] = React.useState(false)
-  const [isConnecting, setIsConnecting] = React.useState(false)
+  const [isHovered, setIsHovered] = React.useState(false)      // 是否悬停
+  const [isConnecting, setIsConnecting] = React.useState(false) // 是否正在连线
 
+  /** 双击进入编辑模式 */
   const handleDoubleClick = () => {
     setIsEditing(true)
   }
 
+  /** 失焦退出编辑模式并保存 */
   const handleBlur = () => {
     setIsEditing(false)
     data.onLabelChange?.(data.id, label)
   }
 
+  /** 尺寸变更回调 */
   const handleSizeChange = (id: string, newSize: { width: number; height: number }) => {
     setSize(newSize)
     data.onSizeChange?.(id, newSize)
   }
 
+  // 使用缩放 Hook
   const { handleMouseDown, isResizing } = useNodeResize(data.id, size, handleSizeChange)
 
-  const fontSize = Math.min(size.width, size.height) * 0.18
-  const handleSize = 3
-  const handleOffset = -(handleSize / 2)
+  // ===== 计算样式参数 =====
+  const fontSize = Math.min(size.width, size.height) * 0.18  // 字体大小随节点尺寸变化
+  const handleSize = 3                                        // 锚点大小
+  const handleOffset = -(handleSize / 2)                      // 锚点偏移（居中对齐边缘）
 
   return (
     <div
@@ -43,6 +60,8 @@ function RectangleNode({ data }: { data: any }) {
       onMouseLeave={() => setIsHovered(false)}
       style={{ width: `${size.width}px`, height: `${size.height}px` }}
     >
+      {/* ===== 四边连接锚点 ===== */}
+      {/* 悬停时显示，用于创建连线 */}
       <Handle
         id="top"
         type="source"
@@ -120,7 +139,8 @@ function RectangleNode({ data }: { data: any }) {
         }}
       />
 
-      {/* 四角缩放手柄 */}
+      {/* ===== 四角缩放手柄 ===== */}
+      {/* 悬停时显示，用于调整节点大小 */}
       <div
         className="absolute rounded-full cursor-nw-resize opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'nw')}
@@ -142,7 +162,9 @@ function RectangleNode({ data }: { data: any }) {
         style={{ width: handleSize, height: handleSize, bottom: handleOffset, right: handleOffset, background: 'hsl(var(--muted-foreground))' }}
       />
 
+      {/* ===== 文字内容 ===== */}
       {isEditing ? (
+        // 编辑模式：多行文本输入框
         <textarea
           value={label}
           onChange={(e) => setLabel(e.target.value)}
@@ -154,6 +176,7 @@ function RectangleNode({ data }: { data: any }) {
           style={{ fontSize: `${fontSize}px`, lineHeight: 1.2 }}
         />
       ) : (
+        // 显示模式：文字自动换行和截断
         <span 
           className="text-center w-full overflow-hidden"
           style={{ 
@@ -161,7 +184,7 @@ function RectangleNode({ data }: { data: any }) {
             lineHeight: 1.2,
             wordBreak: 'break-word',
             display: '-webkit-box',
-            WebkitLineClamp: 3,
+            WebkitLineClamp: 3,           // 最多显示 3 行
             WebkitBoxOrient: 'vertical',
           }}
         >
@@ -169,7 +192,8 @@ function RectangleNode({ data }: { data: any }) {
         </span>
       )}
 
-      {/* 尺寸显示框 */}
+      {/* ===== 尺寸提示框 ===== */}
+      {/* 悬停或缩放时显示当前尺寸 */}
       {(isHovered || isResizing) && (
         <div 
           className="absolute left-1/2 -translate-x-1/2 rounded text-center whitespace-nowrap pointer-events-none z-30"

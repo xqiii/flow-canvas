@@ -1,10 +1,22 @@
+/**
+ * CircleNode - 圆形节点组件
+ * 
+ * 功能：
+ * - 圆形外观，保持宽高一致
+ * - 可拖拽调整大小（等比例）
+ * - 双击编辑文字
+ * - 四边连接锚点
+ */
+
 import React from 'react'
 import { Handle, Position } from '@xyflow/react'
 import useNodeResize from '../../hooks/useNodeResize'
 
+// 默认直径
 const DEFAULT_SIZE = 28
 
 function CircleNode({ data }: { data: any }) {
+  // ===== 状态 =====
   const [isEditing, setIsEditing] = React.useState(false)
   const [label, setLabel] = React.useState(data.label || '')
   const [size, setSize] = React.useState({ 
@@ -14,17 +26,22 @@ function CircleNode({ data }: { data: any }) {
   const [isHovered, setIsHovered] = React.useState(false)
   const [isConnecting, setIsConnecting] = React.useState(false)
 
+  /** 双击进入编辑模式 */
   const handleDoubleClick = () => {
     setIsEditing(true)
   }
 
+  /** 失焦退出编辑模式 */
   const handleBlur = () => {
     setIsEditing(false)
     data.onLabelChange?.(data.id, label)
   }
 
+  /** 
+   * 尺寸变更回调
+   * 圆形保持宽高一致，取较大值
+   */
   const handleSizeChange = (id: string, newSize: { width: number; height: number }) => {
-    // 圆形保持宽高一致，取较大值
     const maxDim = Math.max(newSize.width, newSize.height)
     setSize({ width: maxDim, height: maxDim })
     data.onSizeChange?.(id, { width: maxDim, height: maxDim })
@@ -32,6 +49,7 @@ function CircleNode({ data }: { data: any }) {
 
   const { handleMouseDown, isResizing } = useNodeResize(data.id, size, handleSizeChange)
 
+  // ===== 计算样式参数 =====
   const diameter = size.width
   const fontSize = diameter * 0.18
   const handleSize = 3
@@ -45,6 +63,7 @@ function CircleNode({ data }: { data: any }) {
       onMouseLeave={() => setIsHovered(false)}
       style={{ width: `${diameter}px`, height: `${diameter}px` }}
     >
+      {/* ===== 四边连接锚点 ===== */}
       <Handle
         id="top"
         type="source"
@@ -122,7 +141,7 @@ function CircleNode({ data }: { data: any }) {
         }}
       />
 
-      {/* 四角缩放手柄 */}
+      {/* ===== 四角缩放手柄 ===== */}
       <div
         className="absolute rounded-full cursor-nw-resize opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 nodrag nopan nowheel"
         onMouseDown={(e) => handleMouseDown(e, 'nw')}
@@ -144,6 +163,7 @@ function CircleNode({ data }: { data: any }) {
         style={{ width: handleSize, height: handleSize, bottom: handleOffset, right: handleOffset, background: 'hsl(var(--muted-foreground))' }}
       />
 
+      {/* ===== 文字内容 ===== */}
       {isEditing ? (
         <textarea
           value={label}
@@ -163,7 +183,7 @@ function CircleNode({ data }: { data: any }) {
             lineHeight: 1.2,
             wordBreak: 'break-word',
             display: '-webkit-box',
-            WebkitLineClamp: 2,
+            WebkitLineClamp: 2,  // 圆形空间较小，最多 2 行
             WebkitBoxOrient: 'vertical',
           }}
         >
@@ -171,7 +191,7 @@ function CircleNode({ data }: { data: any }) {
         </span>
       )}
 
-      {/* 尺寸显示框 */}
+      {/* ===== 尺寸提示框 ===== */}
       {(isHovered || isResizing) && (
         <div 
           className="absolute left-1/2 -translate-x-1/2 rounded text-center whitespace-nowrap pointer-events-none z-30"

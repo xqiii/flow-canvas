@@ -1,3 +1,13 @@
+/**
+ * FlowCanvas - 流程图画布主组件
+ * 
+ * 功能：
+ * - 管理节点和边的状态
+ * - 处理节点拖放创建
+ * - 处理连线创建和样式切换
+ * - 支持导出画布为图片
+ */
+
 import React, { useCallback, useRef } from 'react'
 import {
   ReactFlow,
@@ -29,46 +39,64 @@ import CircleNode from './nodes/CircleNode'
 import EllipseNode from './nodes/EllipseNode'
 import DiamondNode from './nodes/DiamondNode'
 
+// 组件属性接口
 interface FlowCanvasProps {
-  selectedShape: string
-  selectedEdgeStyle: 'straight' | 'step' | 'smoothstep' | 'default' | 'dashed'
+  selectedShape: string  // 当前选中的形状类型
+  selectedEdgeStyle: 'straight' | 'step' | 'smoothstep' | 'default' | 'dashed'  // 当前选中的边样式
 }
 
+// 初始状态：空画布
 const initialNodes: Node[] = []
 const initialEdges: Edge[] = []
 
 function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null)
-  const { screenToFlowPosition } = useReactFlow()
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-  const [selectedEdge, setSelectedEdge] = React.useState<string | null>(null)
+  // ===== Refs =====
+  const reactFlowWrapper = useRef<HTMLDivElement>(null)  // 画布容器引用，用于导出图片
+  
+  // ===== React Flow Hooks =====
+  const { screenToFlowPosition } = useReactFlow()  // 屏幕坐标转换为画布坐标
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)  // 节点状态管理
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)  // 边状态管理
+  
+  // ===== 本地状态 =====
+  const [selectedEdge, setSelectedEdge] = React.useState<string | null>(null)  // 当前选中的边 ID
+
+  /**
+   * 生成唯一 ID
+   * 优先使用 crypto.randomUUID，降级使用时间戳+随机数
+   */
   const genId = useCallback((prefix: string) => {
     const uuid = (globalThis as any).crypto?.randomUUID?.()
     return uuid ? `${prefix}-${uuid}` : `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`
   }, [])
 
+  // ===== 节点类型注册 =====
   const nodeTypes = React.useMemo(
     () => ({
-      rectangle: RectangleNode,
-      circle: CircleNode,
-      ellipse: EllipseNode,
-      diamond: DiamondNode,
+      rectangle: RectangleNode,  // 矩形节点
+      circle: CircleNode,        // 圆形节点
+      ellipse: EllipseNode,      // 椭圆节点
+      diamond: DiamondNode,      // 菱形节点
     }),
     []
   )
 
+  // ===== 边类型注册 =====
   const edgeTypes = React.useMemo(
     () => ({
-      default: BezierEdge,
-      straight: StraightEdge,
-      step: StepEdge,
-      smoothstep: BezierEdge,
-      dashed: BezierEdge,
+      default: BezierEdge,    // 默认贝塞尔曲线
+      straight: StraightEdge, // 直线
+      step: StepEdge,         // 阶梯线
+      smoothstep: BezierEdge, // 平滑曲线
+      dashed: BezierEdge,     // 虚线
     }),
     []
   )
 
+  /**
+   * 连线创建回调
+   * 当用户从一个节点拖拽连线到另一个节点时触发
+   */
   const onConnect = useCallback(
     (params: Connection) => {
       const newEdge: Edge = {
@@ -95,6 +123,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [setEdges, selectedEdgeStyle, genId]
   )
 
+  /**
+   * 节点标签变更回调
+   * 当用户编辑节点内文字时触发
+   */
   const onLabelChange = useCallback(
     (nodeId: string, label: string) => {
       setNodes((nds) =>
@@ -106,6 +138,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [setNodes]
   )
 
+  /**
+   * 节点尺寸变更回调
+   * 当用户拖拽调整节点大小时触发
+   */
   const onSizeChange = useCallback(
     (nodeId: string, size: { width: number; height: number }) => {
       setNodes((nds) =>
@@ -117,6 +153,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [setNodes]
   )
 
+  /**
+   * 节点点击回调
+   * Cmd/Ctrl + 点击删除节点及其关联的边
+   */
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       if (event.metaKey || event.ctrlKey) {
@@ -127,6 +167,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [setNodes, setEdges]
   )
 
+  /**
+   * 边点击回调
+   * 普通点击选中边，Cmd/Ctrl + 点击删除边
+   */
   const onEdgeClick = useCallback(
     (event: React.MouseEvent, edge: Edge) => {
       event.stopPropagation()
@@ -140,6 +184,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [setEdges]
   )
 
+  /**
+   * 更新选中边的样式
+   * 用于边样式选择器
+   */
   const updateSelectedEdgeStyle = useCallback(
     (newStyle: string) => {
       if (selectedEdge) {
@@ -163,6 +211,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [selectedEdge, setEdges]
   )
 
+  /**
+   * 边重连回调
+   * 当用户拖拽边的端点到新位置时触发
+   */
   const onReconnect = useCallback(
     (oldEdge: Edge, newConnection: Connection) => {
       setEdges((els) =>
@@ -177,10 +229,15 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [setEdges]
   )
 
+  /**
+   * 画布空白区域点击
+   * 取消边的选中状态
+   */
   const onPaneClick = useCallback(() => {
     setSelectedEdge(null)
   }, [])
 
+  // 边鼠标进入/离开事件（用于高亮显示）
   const onEdgeMouseEnter = useCallback((event: React.MouseEvent, edge: Edge) => {
     setSelectedEdge(edge.id)
   }, [])
@@ -188,28 +245,39 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
   const onEdgeMouseLeave = useCallback(() => {
   }, [])
 
+  /**
+   * 拖拽经过画布事件
+   * 设置拖放效果
+   */
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
     event.dataTransfer.dropEffect = 'move'
   }, [])
 
+  /**
+   * 拖放到画布事件
+   * 创建新节点
+   */
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault()
 
       if (!reactFlowWrapper.current) return
 
+      // 将屏幕坐标转换为画布坐标
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       })
 
+      // 获取拖放的形状类型
       const shapeType =
         event.dataTransfer.getData('application/reactflow') ||
         event.dataTransfer.getData('shapeType') ||
         selectedShape
       const nodeId = genId(shapeType)
 
+      // 创建新节点
       const newNode: Node = {
         id: nodeId,
         type: shapeType,
@@ -222,6 +290,9 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     [screenToFlowPosition, selectedShape, onLabelChange, onSizeChange, setNodes, genId]
   )
 
+  /**
+   * 导出画布为 PNG 图片
+   */
   const exportImage = async () => {
     if (!reactFlowWrapper.current) return
 
@@ -232,11 +303,16 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
     link.click()
   }
 
+  // ===== 渲染 =====
   return (
     <div className="h-full w-full relative">
+      {/* 导出按钮 */}
       <ExportImageButton onClick={exportImage} />
+      
+      {/* 边样式选择器（仅在选中边时显示） */}
       {selectedEdge && <EdgeStyleSelector onSelect={updateSelectedEdgeStyle} />}
 
+      {/* 主画布区域 */}
       <div ref={reactFlowWrapper} className="h-full w-full" onDrop={onDrop} onDragOver={onDragOver}>
         <ReactFlow
           nodes={nodes}
@@ -253,15 +329,18 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           connectionMode={ConnectionMode.Loose}
+          // 缩放设置
           minZoom={0.2}
           maxZoom={5}
           zoomOnScroll={true}
           zoomOnPinch={true}
           zoomOnDoubleClick={true}
+          // 平移设置
           panOnDrag={true}
           panOnScroll={false}
           preventScrolling={true}
           onInit={(inst) => inst.fitView({ padding: 0.1, minZoom: 0.2, maxZoom: 5 })}
+          // 连接线类型
           connectionLineType={
             selectedEdgeStyle === 'straight'
               ? ConnectionLineType.Straight
@@ -274,27 +353,32 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
           fitView
           snapToGrid={true}
           snapGrid={[20, 20]}
-        defaultEdgeOptions={{
-          type: selectedEdgeStyle,
-          style: {
-            strokeWidth: 0.75,
-            stroke: 'hsl(var(--muted-foreground))',
-            strokeDasharray: selectedEdgeStyle === 'dashed' ? '5,3' : undefined,
-            strokeLinecap: 'round',
-            strokeLinejoin: 'round',
-          },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 5,
-            height: 5,
-            color: 'hsl(var(--muted-foreground))',
-          },
-        }}
+          // 默认边样式
+          defaultEdgeOptions={{
+            type: selectedEdgeStyle,
+            style: {
+              strokeWidth: 0.75,
+              stroke: 'hsl(var(--muted-foreground))',
+              strokeDasharray: selectedEdgeStyle === 'dashed' ? '5,3' : undefined,
+              strokeLinecap: 'round',
+              strokeLinejoin: 'round',
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 5,
+              height: 5,
+              color: 'hsl(var(--muted-foreground))',
+            },
+          }}
           proOptions={{ hideAttribution: true }}
         >
+          {/* 控制面板（缩放、居中等） */}
           <Controls position="bottom-left" />
+          {/* 背景（透明） */}
           <Background bgColor="transparent" color="transparent" />
         </ReactFlow>
+
+        {/* 小地图 */}
         <MiniMap
           position="bottom-right"
           nodeStrokeWidth={1}
@@ -312,6 +396,10 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
   )
 }
 
+/**
+ * 带 Provider 的 FlowCanvas 组件
+ * ReactFlowProvider 提供必要的上下文
+ */
 const FlowCanvasWithProvider = ({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) => {
   return (
     <ReactFlowProvider>
