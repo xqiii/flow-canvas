@@ -82,36 +82,6 @@ function App() {
         <FlowCanvasWithProvider selectedShape={selectedShape} selectedEdgeStyle={selectedEdgeStyle} />
       </div>
 
-      {/* 使用说明 */}
-      <div className="absolute bottom-6 left-24 bg-card border border-border rounded-md shadow-sm p-4 text-xs text-mutedForeground">
-        <div className="font-semibold mb-2 text-foreground">操作说明</div>
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
-            <span>点击图标或拖拽到画布</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
-            <span>拖拽图形边缘进行连线</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
-            <span>双击图形编辑文字</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
-            <span>按住Cmd/Ctrl键点击图形删除</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
-            <span>拖拽图形四角进行缩放</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-foreground rounded-full"></div>
-            <span>按住Cmd/Ctrl键点击连线删除</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
