@@ -8,7 +8,7 @@
  * - 支持导出画布为图片
  */
 
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useRef, useEffect, useState } from 'react'
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -59,7 +59,8 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)  // 边状态管理
   
   // ===== 本地状态 =====
-  const [selectedEdge, setSelectedEdge] = React.useState<string | null>(null)  // 当前选中的边 ID
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null)  // 当前选中的边 ID
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)  // 当前选中的节点 ID
 
   /**
    * 生成唯一 ID
@@ -154,14 +155,69 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
   )
 
   /**
+   * 复制选中的节点
+   * 创建一个新节点，位置在原节点右下方偏移 30px
+   */
+  const duplicateNode = useCallback(
+    (nodeId: string) => {
+      const nodeToDuplicate = nodes.find((n) => n.id === nodeId)
+      if (!nodeToDuplicate) return
+
+      const newNodeId = genId(nodeToDuplicate.type || 'node')
+      const newNode: Node = {
+        ...nodeToDuplicate,
+        id: newNodeId,
+        position: {
+          x: nodeToDuplicate.position.x + 30,
+          y: nodeToDuplicate.position.y + 30,
+        },
+        data: {
+          ...nodeToDuplicate.data,
+          id: newNodeId,
+          onLabelChange,
+          onSizeChange,
+        },
+        selected: false,
+      }
+
+      setNodes((nds) => nds.concat(newNode))
+      setSelectedNodeId(newNodeId)
+    },
+    [nodes, genId, onLabelChange, onSizeChange, setNodes]
+  )
+
+  /**
+   * 键盘事件处理
+   * Cmd/Ctrl + D 复制选中的节点
+   */
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Cmd/Ctrl + D 复制节点
+      if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
+        event.preventDefault()
+        if (selectedNodeId) {
+          duplicateNode(selectedNodeId)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedNodeId, duplicateNode])
+
+  /**
    * 节点点击回调
    * Cmd/Ctrl + 点击删除节点及其关联的边
+   * 普通点击选中节点（用于复制）
    */
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       if (event.metaKey || event.ctrlKey) {
         setNodes((nds) => nds.filter((n) => n.id !== node.id))
         setEdges((eds) => eds.filter((e) => e.source !== node.id && e.target !== node.id))
+        setSelectedNodeId(null)
+      } else {
+        setSelectedNodeId(node.id)
       }
     },
     [setNodes, setEdges]
@@ -231,10 +287,11 @@ function FlowCanvas({ selectedShape, selectedEdgeStyle }: FlowCanvasProps) {
 
   /**
    * 画布空白区域点击
-   * 取消边的选中状态
+   * 取消边和节点的选中状态
    */
   const onPaneClick = useCallback(() => {
     setSelectedEdge(null)
+    setSelectedNodeId(null)
   }, [])
 
   // 边鼠标进入/离开事件（用于高亮显示）
